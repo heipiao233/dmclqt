@@ -25,17 +25,7 @@ jobs:
           node-version: "16.15.0"
       - run: |
           sudo apt update
-          sudo apt install fuse libopengl0 libegl1 libxcb1 libxcb-xkb-dev doxygen
-      - name: install libxcbcommon
-        run: |
-          wget https://xkbcommon.org/download/libxkbcommon-1.5.0.tar.xz
-          tar xvf libxkbcommon-1.5.0.tar.xz
-          cd libxkbcommon-1.5.0
-          meson setup build
-          ninja -C build
-          cd build
-          sudo meson install
-          cd ../..
+          sudo apt install fuse libopengl0 libegl1 libxcb1 libxkbcommon-x11-0
       - name: npm install, build and test
         run: |
           npm install
