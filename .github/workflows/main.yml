@@ -44,6 +44,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "16.15.0"
+      - run: sudo apt install fuse
       - name: npm install, build and test
         run: |
           npm install
@@ -54,7 +55,7 @@ jobs:
           npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
-          name: Linux
+          name: Windows
           path: deploy/win32/build/DMCLQT
   build_darwin:
     runs-on: macos-latest
@@ -75,5 +76,5 @@ jobs:
           npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
-          name: Linux
+          name: MacOS
           path: deploy/darwin/build
