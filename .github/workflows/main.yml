@@ -58,7 +58,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
-          find deploy/win32/build/DMCLQT | xargs sha1sum
+          bash -c "find deploy/win32/build/DMCLQT | xargs sha1sum"
       - uses: actions/upload-artifact@v3
         with:
           name: Windows
@@ -80,7 +80,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
-          find deploy/darwin/build | xargs shasum
+          find deploy/darwin/build -type f | xargs shasum
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS
