@@ -37,7 +37,9 @@ jobs:
           npx nodegui-packer -p dist
       - name: hash
         run: |
+          echo SHA1
           sha1sum deploy/linux/build/DMCLQT/*.AppImage
+          echo SHA256
           sha256sum deploy/linux/build/DMCLQT/*.AppImage
       - uses: actions/upload-artifact@v3
         with:
@@ -62,7 +64,9 @@ jobs:
           npx nodegui-packer -p dist
       - name: hash
         run: |
+          echo SHA1
           bash -c "find deploy/win32/build/DMCLQT -type f | xargs sha1sum"
+          echo SHA256
           bash -c "find deploy/win32/build/DMCLQT -type f | xargs sha256sum"
       - uses: actions/upload-artifact@v3
         with:
@@ -87,9 +91,11 @@ jobs:
           npx nodegui-packer -p dist
       - name: hash
         run: |
-          find deploy/darwin/build -type f | xargs shasum
-          find deploy/darwin/build -type f | xargs shasum -a 256
+          echo SHA1
+          shasum deploy/darwin/build/DMCLQT.dmg
+          echo SHA256
+          shasum -a 256 deploy/darwin/build/DMCLQT.dmg
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS
-          path: deploy/darwin/build
+          path: deploy/darwin/build/DMCLQT.dmg
