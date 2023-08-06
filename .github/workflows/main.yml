@@ -35,10 +35,11 @@ jobs:
           npx nodegui-packer -i DMCLQT
           sed -i 's/\r//' deploy/linux/DMCLQT/default.desktop
           npx nodegui-packer -p dist
+          sha1sum deploy/linux/build/DMCLQT/*.AppImage
       - uses: actions/upload-artifact@v3
         with:
           name: Linux
-          path: deploy/linux/build/DMCLQT/Application-x86_64.AppImage
+          path: deploy/linux/build/DMCLQT/*.AppImage
   build_windows:
     runs-on: windows-latest
     steps:
@@ -56,6 +57,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
+          sha1sum deploy/win32/build/DMCLQT
       - uses: actions/upload-artifact@v3
         with:
           name: Windows
@@ -77,6 +79,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
+          sha1sum deploy/darwin/build
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS
