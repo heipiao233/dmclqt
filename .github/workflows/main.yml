@@ -23,6 +23,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "16.15.0"
+      - run: sudo apt install fuse
       - name: npm install, build and test
         run: |
           npm install
@@ -44,7 +45,6 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "16.15.0"
-      - run: sudo apt install fuse
       - name: npm install, build and test
         run: |
           npm install
