@@ -1,0 +1,31 @@
+{
+    "name": "dmclqt",
+    "version": "1.0.0",
+    "author": "heipiao",
+    "license": "MIT",
+    "private": false,
+    "scripts": {
+        "build": "webpack --mode production",
+        "start": "webpack -c ./webpack.config.cjs && qode ./dist/index.js",
+        "run": "qode ./dist/index.js",
+        "debug": "webpack -c ./webpack.config.cjs && qode --inspect ./dist/index.js"
+    },
+    "dependencies": {
+        "@nodegui/nodegui": "^0.61.0",
+        "dmclc": "^4.0.0-alpha.9",
+        "fs-extra": "^11.1.1",
+        "json5": "^2.2.2"
+    },
+    "devDependencies": {
+        "@dmclmc/packer-fork": "1.5.1",
+        "@types/fs-extra": "^11.0.1",
+        "@types/node": "^20.4.7",
+        "clean-webpack-plugin": "^4.0.0",
+        "file-loader": "^6.2.0",
+        "native-addon-loader": "^2.0.1",
+        "ts-loader": "^9.3.1",
+        "typescript": "^5.2.0-beta",
+        "webpack": "^5.74.0",
+        "webpack-cli": "^4.10.0"
+    }
+}

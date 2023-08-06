@@ -1,0 +1,79 @@
+on: [create, workflow_dispatch]
+permissions:
+  id-token: write
+  actions: write
+  checks: write
+  contents: write
+  deployments: write
+  discussions: write
+  issues: write
+  packages: write
+  pages: write
+  pull-requests: write
+  repository-projects: write
+  security-events: write
+  statuses: write
+jobs:
+  build_linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.15.0"
+      - name: npm install, build and test
+        run: |
+          npm install
+          npm run build
+      - name: deploy
+        run: |
+          npx nodegui-packer -i DMCLQT
+          npx nodegui-packer -p run/dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux
+          path: deploy/linux/build/DMCLQT/Application-x86_64.AppImage
+  build_windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.15.0"
+      - name: npm install, build and test
+        run: |
+          npm install
+          npm run build
+      - name: deploy
+        run: |
+          npx nodegui-packer -i DMCLQT
+          npx nodegui-packer -p run/dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux
+          path: deploy/win32/build/DMCLQT
+  build_darwin:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.15.0"
+      - name: npm install, build and test
+        run: |
+          npm install
+          npm run build
+      - name: deploy
+        run: |
+          npx nodegui-packer -i DMCLQT
+          npx nodegui-packer -p run/dist
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Linux
+          path: deploy/darwin/build
