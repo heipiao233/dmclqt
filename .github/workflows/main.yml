@@ -33,7 +33,7 @@ jobs:
       - name: deploy
         run: |
           npx nodegui-packer -i DMCLQT
-          dos2unix deploy/linux/build/DMCLQT/default.desktop
+          sed -i 's/\r//' deploy/linux/build/DMCLQT/default.desktop
           npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
