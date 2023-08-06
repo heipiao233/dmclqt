@@ -36,6 +36,7 @@ jobs:
           sed -i 's/\r//' deploy/linux/DMCLQT/default.desktop
           npx nodegui-packer -p dist
           sha1sum deploy/linux/build/DMCLQT/*.AppImage
+          sha256sum deploy/linux/build/DMCLQT/*.AppImage
       - uses: actions/upload-artifact@v3
         with:
           name: Linux
@@ -57,7 +58,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
-          sha1sum deploy/win32/build/DMCLQT
+          find deploy/win32/build/DMCLQT | xargs sha1sum
       - uses: actions/upload-artifact@v3
         with:
           name: Windows
@@ -79,7 +80,7 @@ jobs:
         run: |
           npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
-          sha1sum deploy/darwin/build
+          find deploy/darwin/build | xargs shasum
       - uses: actions/upload-artifact@v3
         with:
           name: MacOS
