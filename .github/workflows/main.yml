@@ -23,7 +23,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "16.15.0"
-      - run: sudo apt install fuse libopengl0 libegl1 libxbc1
+      - run: |
+          sudo apt update
+          sudo apt install fuse libopengl0 libegl1 libxbc1 libicu66 libgcrypt20 libbsd0 libdbus-1-3 libglib2.0-0 liblz4-1 liblzma5 libpcre3 libpng16-16 libsystemd0
       - name: npm install, build and test
         run: |
           npm install
