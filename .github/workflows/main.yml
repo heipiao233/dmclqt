@@ -30,7 +30,7 @@ jobs:
       - name: deploy
         run: |
           npx nodegui-packer -i DMCLQT
-          npx nodegui-packer -p run/dist
+          npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
           name: Linux
@@ -51,7 +51,7 @@ jobs:
       - name: deploy
         run: |
           npx nodegui-packer -i DMCLQT
-          npx nodegui-packer -p run/dist
+          npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
           name: Linux
@@ -72,7 +72,7 @@ jobs:
       - name: deploy
         run: |
           npx nodegui-packer -i DMCLQT
-          npx nodegui-packer -p run/dist
+          npx nodegui-packer -p dist
       - uses: actions/upload-artifact@v3
         with:
           name: Linux
