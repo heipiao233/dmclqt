@@ -6,6 +6,7 @@
     "private": false,
     "scripts": {
         "build": "webpack --mode production",
+        "deploy": "nodegui-packer -p dist",
         "start": "webpack -c ./webpack.config.cjs && qode ./dist/index.js",
         "run": "qode ./dist/index.js",
         "debug": "webpack -c ./webpack.config.cjs && qode --inspect ./dist/index.js"
