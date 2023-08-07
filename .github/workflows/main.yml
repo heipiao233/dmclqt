@@ -115,6 +115,13 @@ jobs:
     - name: tar
       run: |
         tar cvfJ windows.tar.xz Windows
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          windows.tar.xz
+          Linux/*.AppImage
+          MacOS/DMCLQT.dmg
   scan:
     runs-on: ubuntu-latest
     if: ${{ inputs.scan }}
@@ -131,10 +138,4 @@ jobs:
           windows.tar.xz
           Linux/*.AppImage
           MacOS/DMCLQT.dmg
-    - name: Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: |
-          windows.tar.xz
-          Linux/*.AppImage
-          MacOS/DMCLQT.dmg
+
