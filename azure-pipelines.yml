@@ -1,0 +1,39 @@
+jobs:
+  - job:
+    pool:
+      vmImage: ubuntu-20.04
+    steps:
+      - task: NodeTool@0
+        inputs:
+          versionSource: 'spec'
+          versionSpec: '16.15.0'
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            sudo apt update
+            sudo apt install fuse libopengl0 libegl1 libxcb1 libxkbcommon-x11-0 libxcb-glx0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-render0 libxcb-shape0 libxcb-shm0 libxcb-sync1 libxcb-util1 libxcb-xfixes0 libxcb-xkb1 libxdmcp6
+      - task: Npm@1
+        inputs:
+          command: 'install'
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          customCommand: 'run build'
+      - task: Npm@1
+        inputs:
+          command: 'custom'
+          customCommand: 'run deploy'
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            echo SHA1
+            sha1sum deploy/linux/build/DMCLQT/*.AppImage
+            echo SHA256
+            sha256sum deploy/linux/build/DMCLQT/*.AppImage
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Pipeline.Workspace)/deploy/linux/build/DMCLQT/*.AppImage'
+          ArtifactName: 'Linux'
+          publishLocation: 'Container'
