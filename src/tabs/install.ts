@@ -1,5 +1,6 @@
-import { ButtonRole, QGridLayout, QInputDialog, QListWidget, QListWidgetItem, QMessageBox, QPushButton } from '@nodegui/nodegui';
+import { QGridLayout, QInputDialog, QListWidget, QListWidgetItem } from '@nodegui/nodegui';
 import { Launcher, VersionInfo } from 'dmclc';
+import launcherInterface from '../launcherInterface';
 import { Tab } from '../tabs';
 
 export default class InstallTab extends Tab {
@@ -12,7 +13,7 @@ export default class InstallTab extends Tab {
         layout.addWidget(this.versionListToInstall);
         this.setLayout(layout);
     }
-    
+
     askVersionName(default_: string): Promise<string> {
         return new Promise((resolve, reject) => {
             const input = new QInputDialog();
@@ -21,18 +22,21 @@ export default class InstallTab extends Tab {
             input.show();
         });
     }
-    
+
     async install(item: string) {
-        let v = await this.launcher.installer.install(this.data.get(item)!, await this.askVersionName(item), true); 
-        v.saveExtras();
-        this.launcher.refreshInstalledVersion();
-        const box = new QMessageBox();
-        box.setWindowTitle("安装成功！");
-        box.setText(`Minecraft 版本 ${item} 安装成功！`);
-        const accept = new QPushButton();
-        accept.setText("确认");
-        box.addButton(accept, ButtonRole.AcceptRole);
-        box.show();
+        try {
+            const name = await this.askVersionName(item);
+            if (this.launcher.installedVersions.has(name)) {
+                launcherInterface.error(`版本 ${name} 已经存在！`);
+                return;
+            }
+            let v = await this.launcher.installer.install(this.data.get(item)!, name, true);
+            v.saveExtras();
+            this.launcher.refreshInstalledVersion();
+            launcherInterface.info(`Minecraft 版本 ${item} 安装成功！`);
+        } catch {
+            launcherInterface.error(`Minecraft 版本 ${item} 安装失败！`);
+        }
     }
 
     async onSelected() {

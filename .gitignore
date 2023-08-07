@@ -3,5 +3,5 @@ dist/
 *.log
 .vscode
 .minecraft/
-deploy
+deploy/*/build
 run

@@ -1,6 +1,7 @@
 import { ButtonRole, QGridLayout, QMessageBox, QPushButton, QSizePolicyPolicy } from '@nodegui/nodegui';
 import { Account, Launcher } from 'dmclc';
 import { Config } from '../config';
+import launcherInterface from '../launcherInterface';
 import { Tab, addTabAndSwitch } from '../tabs';
 import LogTab from './LogTab';
 import ModListTab from './ModListTab';
@@ -107,41 +108,31 @@ export default class MainPageTab extends Tab {
         const account: Account<any> = this.sharedData.get("account");
         const selectedGame = this.launcher.installedVersions.get(this.sharedData.get("selectedGame"));
         if (!this.launcher.usingJava) {
-            const box = new QMessageBox();
-            box.setWindowTitle("错误");
-            box.setText(`你未选择 Java！`);
-            const accept = new QPushButton();
-            accept.setText("确认");
-            box.addButton(accept, ButtonRole.AcceptRole);
-            box.show();
+            launcherInterface.error("你未选择 Java！");
             return;
         }
         if (!selectedGame) {
-            const box = new QMessageBox();
-            box.setWindowTitle("错误");
-            box.setText(`你未选择游戏！`);
-            const accept = new QPushButton();
-            accept.setText("确认");
-            box.addButton(accept, ButtonRole.AcceptRole);
-            box.show();
+            launcherInterface.error("你未选择游戏！");
             return;
         }
         selectedGame.extras.enableIndependentGameDir = true;
         selectedGame.saveExtras();
         if (!account) {
-            const box = new QMessageBox();
-            box.setWindowTitle("错误");
-            box.setText(`你未选择账号！`);
-            const accept = new QPushButton();
-            accept.setText("确认");
-            box.addButton(accept, ButtonRole.AcceptRole);
-            box.show();
+            launcherInterface.error("你未选择账号！");
             return;
         }
-        if (!await account.check()) {
-            await account.login();
+        try {
+            if (!await account.check()) {
+                await account.login();
+            }
+        } catch {
+            launcherInterface.error("登录失败！");
         }
-        const cp = await selectedGame.run(this.sharedData.get("account"));
-        addTabAndSwitch(new LogTab(cp), `日志 - ${selectedGame.name}`);
+        try {
+            const cp = await selectedGame.run(this.sharedData.get("account"));
+            addTabAndSwitch(new LogTab(cp, account.getTokens()), `日志 - ${selectedGame.name}`);
+        } catch {
+            launcherInterface.error("下载游戏文件失败！");
+        }
     }
 }

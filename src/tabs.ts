@@ -35,12 +35,15 @@ export function addTabAndSwitch(tab: Tab, title: string, closable = true) {
 
 export function init() {
     tabList.addEventListener("currentChanged", async (index) => {
-        console.log(index);
         await tabs[index].onSelected();
     });
     tabList.addEventListener("tabCloseRequested", index => {
         if (tabs[index].closable) {
-            tabList.removeTab(index);
+            try {
+                tabList.removeTab(index);
+            } catch {
+                // Do nothing.
+            }
             tabs[index].onClose();
         }
     });

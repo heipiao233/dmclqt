@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=DMCLQT
+Exec=AppRun %F
+Icon=icon
+Terminal=false
+Categories=Game;

@@ -1,5 +1,6 @@
 import { ButtonRole, Direction, QBoxLayout, QGroupBox, QListWidget, QListWidgetItem, QMessageBox, QPushButton } from "@nodegui/nodegui";
-import { FormattedError, Launcher } from 'dmclc';
+import { Launcher } from 'dmclc';
+import launcherInterface from "../launcherInterface";
 import { Tab } from "../tabs";
 
 export default class LoadersTab extends Tab {
@@ -44,43 +45,31 @@ export default class LoadersTab extends Tab {
         }
         try {
             await this.launcher.installedVersions.get(this.sharedData.get("selectedGame"))!.installLoader(loaderType, loaderVersion);
-            const box = new QMessageBox();
-            box.setWindowTitle("安装成功！")
-            box.setText(`${loaderType} 版本 ${loaderVersion} 安装成功！`)
-            const accept = new QPushButton();
-            accept.setText("确认");
-            box.addButton(accept, ButtonRole.AcceptRole);
-            box.exec();
+            launcherInterface.info(`${loaderType} 版本 ${loaderVersion} 安装成功！`);
         } catch (e) {
-            if (e instanceof FormattedError) {
-                const box = new QMessageBox();
-                box.setWindowTitle("安装出错！")
-                box.setText(`${loaderType} 版本 ${loaderVersion} 安装出错：${e.message}`)
-                const accept = new QPushButton();
-                accept.setText("确认");
-                box.addButton(accept, ButtonRole.AcceptRole);
-                box.exec();
+            if (e instanceof Error) {
+                launcherInterface.error(`${loaderType} 版本 ${loaderVersion} 安装失败：${e.message}`);
+            } else {
+                launcherInterface.error(`${loaderType} 版本 ${loaderVersion} 安装失败！`);
             }
         }
     }
     async loadVersionList(loaderID: string): Promise<void> {
         const selectedGame = this.launcher.installedVersions.get(this.sharedData.get("selectedGame"));
         if (!selectedGame) {
-            const box = new QMessageBox();
-            box.setWindowTitle("错误");
-            box.setText(`你未选择游戏！`);
-            const accept = new QPushButton();
-            accept.setText("确认");
-            box.addButton(accept, ButtonRole.AcceptRole);
-            box.exec();
+            launcherInterface.error("未选择游戏！");
             return;
         }
-        let versions = await selectedGame.getSuitableLoaderVersions(loaderID)
-        this.versionList.clear();   
-        for (const i of versions) {
-            const listItem = new QListWidgetItem();
-            listItem.setText(i);
-            this.versionList.addItem(listItem);
+        try {
+            let versions = await selectedGame.getSuitableLoaderVersions(loaderID)
+            this.versionList.clear();
+            for (const i of versions) {
+                const listItem = new QListWidgetItem();
+                listItem.setText(i);
+                this.versionList.addItem(listItem);
+            }
+        } catch {
+            launcherInterface.error(`加载 ${loaderID} 版本列表失败！`);
         }
     }
 }

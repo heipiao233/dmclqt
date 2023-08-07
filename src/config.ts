@@ -1,3 +1,4 @@
+import { UserData } from "dmclc";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { createFile, ensureDir } from "fs-extra";
 import { homedir } from "os";
@@ -10,7 +11,7 @@ export type Config = {
     userDefinedJava: string[];
     users: {
         type: string,
-        data: any
+        data: Record<string, unknown> & UserData
     }[];
     gameDirs: string[];
     mirror?: string
@@ -18,8 +19,16 @@ export type Config = {
 export let config: Config;
 let configFile = `${homedir()}/.dmclqt/config.json`;
 if (existsSync(configFile)) {
-    config = JSON.parse(readFileSync(configFile).toLocaleString());
+    try {
+        config = JSON.parse(readFileSync(configFile).toLocaleString());
+    } catch {
+        createConfig();
+    }
 } else {
+    await createConfig();
+}
+
+async function createConfig() {
     createFile(configFile);
     let gameDir = `${homedir()}/.minecraft`;
     if (platform == "win32") {
@@ -37,6 +46,7 @@ if (existsSync(configFile)) {
     };
     saveConfig();
 }
+
 export function saveConfig() {
     writeFileSync(configFile, JSON.stringify(config));
 }

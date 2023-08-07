@@ -16,7 +16,7 @@ export class SettingsTab extends Tab {
         if (launcher.usingJava) {
             getJavaVersion(launcher.usingJava).then((name) => this.selectJavaPushButton.setText(name));
         }
-        this.selectJavaPushButton.addEventListener("clicked", () => addTabAndSwitch(new SelectJavaTab(launcher, sharedData), "选择 Java"));
+        this.selectJavaPushButton.addEventListener("clicked", () => addTabAndSwitch(new SelectJavaTab(launcher), "选择 Java"));
         this.layout_.addWidget(this.selectJavaPushButton, 0, 0);
 
         this.mirrorComboBox.addItems(["BMCLAPI", "MCBBS", "官方"]);
