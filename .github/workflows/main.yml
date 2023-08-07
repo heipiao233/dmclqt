@@ -1,4 +1,6 @@
-on: [create, workflow_dispatch]
+on:
+  - workflow_dispatch
+  - create
 permissions:
   id-token: write
   actions: write
@@ -20,7 +22,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.15.0"
       - run: |
@@ -32,8 +34,6 @@ jobs:
           npm run build
       - name: deploy
         run: |
-          npx nodegui-packer -i DMCLQT
-          sed -i 's/\r//' deploy/linux/DMCLQT/default.desktop
           npx nodegui-packer -p dist
       - name: hash
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.15.0"
       - name: npm install, build and test
@@ -60,7 +60,6 @@ jobs:
           npm run build
       - name: deploy
         run: |
-          npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
       - name: hash
         run: |
@@ -78,7 +77,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: "16.15.0"
       - name: npm install, build and test
@@ -87,7 +86,6 @@ jobs:
           npm run build
       - name: deploy
         run: |
-          npx nodegui-packer -i DMCLQT
           npx nodegui-packer -p dist
       - name: hash
         run: |
@@ -99,3 +97,27 @@ jobs:
         with:
           name: MacOS
           path: deploy/darwin/build/DMCLQT.dmg
+  create_release:
+    needs:
+      - build_windows
+      - build_linux
+      - build_darwin
+    runs-on: ubuntu-latest
+    if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+    steps:
+    - uses: actions/download-artifact@v3
+      with:
+        name: |
+          Windows
+          Linux
+          MacOS
+    - name: tar
+      run: |
+        tar cvfJ windows.tar.xz Windows
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          windows.tar.xz
+          *.AppImage
+          DMCLQT.dmg
