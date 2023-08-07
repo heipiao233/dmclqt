@@ -106,11 +106,6 @@ jobs:
     if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
     steps:
     - uses: actions/download-artifact@v3
-      with:
-        name: |
-          Windows
-          Linux
-          MacOS
     - name: tar
       run: |
         tar cvfJ windows.tar.xz Windows
@@ -119,5 +114,5 @@ jobs:
       with:
         files: |
           windows.tar.xz
-          *.AppImage
-          DMCLQT.dmg
+          Linux/*.AppImage
+          MacOS/DMCLQT.dmg
