@@ -124,7 +124,7 @@ jobs:
           MacOS/DMCLQT.dmg
   scan:
     runs-on: ubuntu-latest
-    if: ${{ inputs.scan }}
+    if: ${{ (github.ref_type == 'tag' && !contains(github.ref_name, '-')) || inputs.scan }}
     needs:
       - build_windows
       - build_linux
