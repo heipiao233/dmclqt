@@ -1,6 +1,6 @@
 import { UserData } from "dmclc";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { createFile, ensureDir } from "fs-extra";
+import { readFileSync, writeFileSync } from "fs";
+import { createFile, ensureDir, ensureFile } from "fs-extra";
 import { homedir } from "os";
 import { platform } from "process";
 
@@ -18,18 +18,11 @@ export type Config = {
 }
 export let config: Config;
 let configFile = `${homedir()}/.dmclqt/config.json`;
-if (existsSync(configFile)) {
-    try {
-        config = JSON.parse(readFileSync(configFile).toLocaleString());
-    } catch {
-        createConfig();
-    }
-} else {
-    await createConfig();
-}
-
-async function createConfig() {
-    createFile(configFile);
+await ensureFile(configFile);
+try {
+    config = JSON.parse(readFileSync(configFile).toLocaleString());
+} catch {
+    await createFile(configFile);
     let gameDir = `${homedir()}/.minecraft`;
     if (platform == "win32") {
         gameDir = `${homedir()}/AppData/Roaming/.minecraft`;

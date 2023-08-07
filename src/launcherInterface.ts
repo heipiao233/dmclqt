@@ -1,5 +1,25 @@
-import { ButtonRole, QDialog, QGridLayout, QInputDialog, QLabel, QLineEdit, QMessageBox, QPushButton } from "@nodegui/nodegui";
-import { LauncherInterface } from "dmclc/lib/launcher";
+import { ButtonRole, QDialog, QGridLayout, QInputDialog, QLabel, QLineEdit, QMessageBox, QProgressDialog, QPushButton } from "@nodegui/nodegui";
+import { LauncherInterface, Progress } from "dmclc/lib/launcher";
+
+class ProgressImpl extends QProgressDialog implements Progress {
+    constructor(steps: number, title: string, msg: string) {
+        super();
+        this.setMaximum(steps);
+        this.setWindowTitle(title);
+        this.setLabelText(msg);
+        this.setCancelButtonText("隐藏");
+    }
+
+    update(msg?: string): void {
+        if (msg) {
+            this.setLabelText(msg);
+            this.setValue(this.value() + 1);
+        } else {
+            super.update();
+        }
+    }
+
+}
 
 class LauncherInterfaceImpl implements LauncherInterface {
     askUser<T extends string>(questions: Record<T, string>, message?: string | undefined): Promise<Record<T, string>> {
@@ -87,6 +107,10 @@ class LauncherInterfaceImpl implements LauncherInterface {
         box.setWindowTitle(title);
         box.show();
         return new Promise((resolve) => accept.addEventListener("clicked", () => resolve()));
+    }
+
+    createProgress(steps: number, title: string, msg: string): Progress {
+        return new ProgressImpl(steps, title, msg);
     }
 
 }
