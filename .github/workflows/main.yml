@@ -1,6 +1,12 @@
 on:
-  - workflow_dispatch
-  - create
+  workflow_dispatch:
+    inputs:
+      scan:
+        description: 'Scan virus?'
+        required: true
+        default: false
+        type: boolean
+  create:
 permissions:
   id-token: write
   actions: write
@@ -109,6 +115,14 @@ jobs:
     - name: tar
       run: |
         tar cvfJ windows.tar.xz Windows
+  scan:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.scan }}
+    needs:
+      - build_windows
+      - build_linux
+      - build_darwin
+    steps:
     - name: VirusTotal Scan
       uses: crazy-max/ghaction-virustotal@v3
       with:
