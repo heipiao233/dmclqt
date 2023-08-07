@@ -130,6 +130,10 @@ jobs:
       - build_linux
       - build_darwin
     steps:
+    - uses: actions/download-artifact@v3
+    - name: tar
+      run: |
+        tar cvfJ windows.tar.xz Windows
     - name: VirusTotal Scan
       uses: crazy-max/ghaction-virustotal@v3
       with:
