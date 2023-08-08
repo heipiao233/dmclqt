@@ -120,11 +120,11 @@ jobs:
           MacOS/DMCLQT.dmg
     - name: Save scan URL
       run: |
-        echo -n "|File|Url|
-        |-|-|
-        |">scan.md
-        echo -n "${{ steps.scan.outputs.analysis }}"|sed 's/;/|\n|/g'|sed 's/=/|/g'>>scan.md
-        echo "|">>scan.md
+        echo "|File|Url|
+        |-|-|">scan.md
+        echo "|Windows|https://www.virustotal.com/gui/file/`sha256sum windows.tar.xz|awk '{print $1}'`|">>scan.md
+        echo "|Linux|https://www.virustotal.com/gui/file/`sha256sum Linux/*.AppImage|awk '{print $1}'`|">>scan.md
+        echo "|MacOS|https://www.virustotal.com/gui/file/`sha256sum DMCLQT.dmg|awk '{print $1}'`|">>scan.md
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
