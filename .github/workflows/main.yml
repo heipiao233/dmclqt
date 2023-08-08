@@ -1,12 +1,6 @@
 on:
-  workflow_dispatch:
-    inputs:
-      scan:
-        description: 'Scan virus?'
-        required: true
-        default: false
-        type: boolean
-  create:
+  - workflow_dispatch
+  - create
 permissions:
   id-token: write
   actions: write
@@ -115,29 +109,26 @@ jobs:
     - name: tar
       run: |
         tar cvfJ windows.tar.xz Windows
-    - name: Release
-      uses: softprops/action-gh-release@v1
+    - name: VirusTotal Scan
+      id: scan
+      uses: crazy-max/ghaction-virustotal@v3
       with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
         files: |
           windows.tar.xz
           Linux/*.AppImage
           MacOS/DMCLQT.dmg
-  scan:
-    runs-on: ubuntu-latest
-    if: ${{ (github.ref_type == 'tag' && !contains(github.ref_name, '-')) || inputs.scan }}
-    needs:
-      - build_windows
-      - build_linux
-      - build_darwin
-    steps:
-    - uses: actions/download-artifact@v3
-    - name: tar
+    - name: Save scan URL
       run: |
-        tar cvfJ windows.tar.xz Windows
-    - name: VirusTotal Scan
-      uses: crazy-max/ghaction-virustotal@v3
+        echo -n "|File|Url|
+        |-|-|
+        |">scan.md
+        echo -n "${{ steps.scan.outputs.analysis }}"|sed 's/;/|\n|/g'|sed 's/=/|/g'>>scan.md
+        echo "|">>scan.md
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        vt_api_key: ${{ secrets.VT_API_KEY }}
+        body_path: scan.md
         files: |
           windows.tar.xz
           Linux/*.AppImage
