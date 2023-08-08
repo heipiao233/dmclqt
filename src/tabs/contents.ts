@@ -2,6 +2,7 @@ import { CheckState, Direction, QBoxLayout, QCheckBox, QComboBox, QGridLayout, Q
 import { randomUUID } from 'crypto';
 import { Content, ContentService, ContentType, ContentVersion, Launcher } from 'dmclc';
 import { download } from 'dmclc/lib/utils/downloads';
+import { MinecraftVersion } from 'dmclc/lib/version';
 import { tmpdir } from 'os';
 import launcherInterface from '../launcherInterface';
 import { Tab, addTabAndSwitch } from '../tabs';
@@ -9,13 +10,12 @@ import { Tab, addTabAndSwitch } from '../tabs';
 class VersionTab extends Tab {
     listWidget: QListWidget;
 
-    constructor(list: ContentVersion[], launcher: Launcher, sharedData: Map<string, any>, isModpack: boolean) {
+    constructor(list: ContentVersion[], launcher: Launcher, version: MinecraftVersion, isModpack: boolean) {
         super();
         const layout = new QBoxLayout(Direction.TopToBottom);
         this.listWidget = new QListWidget();
         this.listWidget.addEventListener("itemActivated", async () => {
             const ver = list[this.listWidget.currentRow()];
-            const selectedGame = launcher.installedVersions.get(sharedData.get("selectedGame"));
             if (isModpack) {
                 const packPath = `${tmpdir()}/${await ver.getVersionFileName()}`;
                 try {
@@ -28,12 +28,12 @@ class VersionTab extends Tab {
                     launcherInterface.error(`下载整合包 ${ver.getContent()} 失败！`);
                 }
             }
-            if (!selectedGame) {
+            if (!version) {
                 launcherInterface.error("未选择版本！");
                 return;
             }
             try {
-                await selectedGame.installContentVersion(ver);
+                await version.installContentVersion(ver);
             } catch {
                 launcherInterface.error(`安装失败！`);
             }
@@ -42,8 +42,8 @@ class VersionTab extends Tab {
         this.setLayout(layout);
     }
 
-    static async create(list: ContentVersion[], launcher: Launcher, sharedData: Map<string, any>, isModpack: boolean): Promise<VersionTab> {
-        const val = new VersionTab(list, launcher, sharedData, isModpack);
+    static async create(list: ContentVersion[], launcher: Launcher, version: MinecraftVersion, isModpack: boolean): Promise<VersionTab> {
+        const val = new VersionTab(list, launcher, version, isModpack);
         for (const i of list) {
             val.listWidget.addItem(new QListWidgetItem(await i.getVersionNumber()));
         }
@@ -53,7 +53,7 @@ class VersionTab extends Tab {
 
 class ContentInfoTab extends Tab {
     private constructor(iconPath: string, private name: string, desc: string, body: string,
-        private versionList: ContentVersion[], private launcher: Launcher, private sharedData: Map<string, any>, private isModpack: boolean) {
+        private versionList: ContentVersion[], private launcher: Launcher, private version: MinecraftVersion, private isModpack: boolean) {
         super();
         const layout = new QGridLayout();
         this.setLayout(layout);
@@ -78,20 +78,20 @@ class ContentInfoTab extends Tab {
         layout.addWidget(bodyBrowser, 0, 1, 3);
     }
 
-    static async create(launcher: Launcher, sharedData: Map<string, any>, content: Content, versionChecked: boolean, isModpack: boolean): Promise<ContentInfoTab | undefined> {
+    static async create(launcher: Launcher, version: MinecraftVersion, content: Content, versionChecked: boolean, isModpack: boolean): Promise<ContentInfoTab | undefined> {
         const iconPath = `${tmpdir()}/icon-${randomUUID()}.png`;
-        const forVersion = versionChecked ? launcher.installedVersions.get(sharedData.get("selectedGame")) : undefined;
+        const forVersion = versionChecked ? version : undefined;
         try {
             await download(await content.getIconURL(), iconPath, launcher);
             return new ContentInfoTab(iconPath, await content.getTitle(),
-                await content.getDescription(), await content.getBody(), await content.listVersions(forVersion), launcher, sharedData, isModpack);
+                await content.getDescription(), await content.getBody(), await content.listVersions(forVersion), launcher, version, isModpack);
         } catch {
             launcherInterface.error(`获取 ${await content.getTitle()} 信息失败！`);
         }
     }
 
     async openVersionList() {
-        addTabAndSwitch(await VersionTab.create(this.versionList, this.launcher, this.sharedData, this.isModpack), `版本列表 - ${this.name}`);
+        addTabAndSwitch(await VersionTab.create(this.versionList, this.launcher, this.version, this.isModpack), `版本列表 - ${this.name}`);
     }
 }
 
@@ -115,7 +115,7 @@ export default class ContentTab extends Tab {
     };
 
     items: Content[] = [];
-    constructor(private launcher: Launcher, private sharedData: Map<string, any>) {
+    constructor(private launcher: Launcher, private version: MinecraftVersion) {
         super();
         this.layout_ = new QBoxLayout(Direction.TopToBottom);
         this.setLayout(this.layout_);
@@ -156,7 +156,7 @@ export default class ContentTab extends Tab {
     }
 
     async showVersions(arg0: Content) {
-        const tab = await ContentInfoTab.create(this.launcher, this.sharedData, arg0,
+        const tab = await ContentInfoTab.create(this.launcher, this.version, arg0,
             this.versionCheck.checkState() == CheckState.Checked, this.typeCombo.itemData(this.typeCombo.currentIndex()).toInt() == ContentType.MODPACK
         );
         if (tab) addTabAndSwitch(tab, `内容信息 - ${await arg0.getTitle()}`);
@@ -194,7 +194,7 @@ export default class ContentTab extends Tab {
         try {
             const result = await service.searchContent(name, 0, 20, type, sort,
                 this.versionCheck.checkState() == CheckState.Checked
-                    ? this.launcher.installedVersions.get(this.sharedData.get("selectedGame"))
+                    ? this.version
                     : undefined);
             this.items = result;
             for (const i of result) {
@@ -217,7 +217,7 @@ export default class ContentTab extends Tab {
         try {
             const result = await this.current.service.searchContent(this.current.name, this.items.length, 20, this.current.type, this.current.sort,
                 this.versionCheck.checkState() == CheckState.Checked
-                    ? this.launcher.installedVersions.get(this.sharedData.get("selectedGame"))
+                    ? this.version
                     : undefined);
             this.items.push(...result);
             for (const i of result) {

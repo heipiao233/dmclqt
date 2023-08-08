@@ -1,23 +1,19 @@
-import { ButtonRole, QGridLayout, QMessageBox, QPushButton, QSizePolicyPolicy } from '@nodegui/nodegui';
+import { QGridLayout, QPushButton, QSizePolicyPolicy } from '@nodegui/nodegui';
 import { Account, Launcher } from 'dmclc';
 import { Config } from '../config';
 import launcherInterface from '../launcherInterface';
 import { Tab, addTabAndSwitch } from '../tabs';
+import { GameOptionsTab } from './GameOptionsTab';
 import LogTab from './LogTab';
-import ModListTab from './ModListTab';
 import SelectGameDirTab from './SelectGameDirTab';
 import { SettingsTab } from './SettingsTab';
-import ContentTab from './contents';
 import InstallTab from './install';
-import LoadersTab from './loaders';
 import SelectAccountTab from './selectaccount';
 import SelectGameTab from './selectgame';
 
 export default class MainPageTab extends Tab {
     accountButton = new QPushButton();
     versionButton = new QPushButton();
-    contentsButton = new QPushButton();
-    loaderButton = new QPushButton();
     installButton = new QPushButton();
     dirButton = new QPushButton();
     settingsButton = new QPushButton();
@@ -30,27 +26,21 @@ export default class MainPageTab extends Tab {
         launchButton.setSizePolicy(QSizePolicyPolicy.Minimum, QSizePolicyPolicy.Preferred)
         launchButton.setText("启动选择的游戏");
         launchButton.addEventListener("clicked", async () => this.launchGame());
-        layout.addWidget(launchButton, 0, 0, 1, 7);
+        layout.addWidget(launchButton, 0, 0, 1, 5);
 
         const modButton = new QPushButton();
         modButton.setSizePolicy(QSizePolicyPolicy.Minimum, QSizePolicyPolicy.Preferred)
-        modButton.setText("查看模组");
+        modButton.setText("版本选项");
         modButton.addEventListener("clicked", async () => {
             let game = launcher.installedVersions.get(sharedData.get("selectedGame"));
             if (!game) {
-                const box = new QMessageBox();
-                box.setWindowTitle("错误");
-                box.setText(`你未选择游戏！`);
-                const accept = new QPushButton();
-                accept.setText("确认");
-                box.addButton(accept, ButtonRole.AcceptRole);
-                box.show();
+                launcherInterface.error("你未选择游戏！");
                 return;
             }
-            addTabAndSwitch(new ModListTab(game, launcher), `模组列表 - ${game.name}`);
+            addTabAndSwitch(new GameOptionsTab(game, launcher), `版本选项 - ${game.name}`);
         });
 
-        layout.addWidget(modButton, 1, 0, 1, 7);
+        layout.addWidget(modButton, 1, 0, 1, 5);
         this.accountButton.setText(sharedData.get("account")?.toString() ?? "选择账户...");
         this.accountButton.addEventListener("clicked", () => addTabAndSwitch(new SelectAccountTab(launcher, sharedData), "选择账户"));
         layout.addWidget(this.accountButton, 2, 0);
@@ -65,37 +55,17 @@ export default class MainPageTab extends Tab {
         });
         layout.addWidget(this.dirButton, 2, 2);
 
-        this.contentsButton.setText("浏览内容...");
-        this.contentsButton.addEventListener("clicked", () => addTabAndSwitch(new ContentTab(launcher, sharedData), "内容"));
-        layout.addWidget(this.contentsButton, 2, 3);
-
-        this.loaderButton.setText("安装加载器...");
-        this.loaderButton.addEventListener("clicked", () => {
-            if (!sharedData.get("selectedGame")) {
-                const box = new QMessageBox();
-                box.setWindowTitle("错误");
-                box.setText(`你未选择游戏！`);
-                const accept = new QPushButton();
-                accept.setText("确认");
-                box.addButton(accept, ButtonRole.AcceptRole);
-                box.show();
-                return;
-            }
-            addTabAndSwitch(new LoadersTab(launcher, sharedData), "加载器");
-        });
-        layout.addWidget(this.loaderButton, 2, 4);
-
         this.installButton.setText("安装游戏...");
         this.installButton.addEventListener("clicked", () => {
             addTabAndSwitch(new InstallTab(launcher), "安装游戏");
         });
-        layout.addWidget(this.installButton, 2, 5);
+        layout.addWidget(this.installButton, 2, 3);
 
         this.settingsButton.setText("设置...");
         this.settingsButton.addEventListener("clicked", () => {
             addTabAndSwitch(new SettingsTab(launcher, sharedData, config), "安装游戏");
         });
-        layout.addWidget(this.settingsButton, 2, 6);
+        layout.addWidget(this.settingsButton, 2, 4);
     }
 
     async onSelected() {
@@ -122,17 +92,10 @@ export default class MainPageTab extends Tab {
             return;
         }
         try {
-            if (!await account.check()) {
-                await account.login();
-            }
-        } catch {
-            launcherInterface.error("登录失败！");
-        }
-        try {
             const cp = await selectedGame.run(this.sharedData.get("account"));
             addTabAndSwitch(new LogTab(cp, account.getTokens()), `日志 - ${selectedGame.name}`);
         } catch {
-            launcherInterface.error("下载游戏文件失败！");
+            launcherInterface.error("启动失败！");
         }
     }
 }

@@ -1,11 +1,10 @@
 import { FileMode, QFileDialog, QGridLayout, QListWidget, QListWidgetItem, QPushButton } from '@nodegui/nodegui';
-import { Launcher, findAllJava, getJavaVersion } from 'dmclc';
+import { findAllJava, getJavaVersion } from 'dmclc';
 import { config, saveConfig } from '../config';
-import launcherInterface from '../launcherInterface';
 import { Tab } from '../tabs';
 export default class SelectJavaTab extends Tab {
     allJava = new QListWidget();
-    constructor(launcher: Launcher) {
+    constructor(toSet: { usingJava?: string }, private hasDefault: boolean) {
         super();
         const layout = new QGridLayout();
         this.setLayout(layout);
@@ -15,7 +14,9 @@ export default class SelectJavaTab extends Tab {
         addNewJavaButton.addEventListener("clicked", () => this.addNewJava());
         layout.addWidget(addNewJavaButton, 1, 0);
         this.allJava.addEventListener("itemActivated", async (item) => {
-            config.usingJava = launcher.usingJava = item.toolTip();
+            if (item.text() == "默认") toSet.usingJava = undefined;
+            else toSet.usingJava = item.toolTip();
+            if (!hasDefault) config.usingJava = toSet.usingJava!;
             saveConfig();
         });
         const deleteButton = new QPushButton();
@@ -23,19 +24,17 @@ export default class SelectJavaTab extends Tab {
         deleteButton.addEventListener("clicked", async () => {
             const java = this.allJava.currentItem().toolTip();
             const index = config.userDefinedJava.indexOf(java);
-            if (index == -1) {
-                launcherInterface.error("不能删除检测到的 Java！");
-                return;
-            }
             this.allJava.takeItem(this.allJava.currentRow());
             config.userDefinedJava.splice(index, 1);
-            if (launcher.usingJava === java) {
-                config.usingJava = launcher.usingJava = this.allJava.item(0).toolTip();
+            if (toSet.usingJava === java) {
+                config.usingJava = toSet.usingJava = this.allJava.item(0).toolTip();
             }
             saveConfig();
         });
         this.allJava.addEventListener("itemSelectionChanged", () => {
-            if (this.allJava.selectedItems().length > 0) {
+            if (this.allJava.selectedItems().length > 0
+                && this.allJava.currentItem().text() !== "默认"
+                && config.userDefinedJava.includes(this.allJava.currentItem().toolTip())) {
                 deleteButton.setDisabled(false);
             } else {
                 deleteButton.setDisabled(true);
@@ -53,26 +52,25 @@ export default class SelectJavaTab extends Tab {
             saveConfig();
             const widgetItem = new QListWidgetItem(await getJavaVersion(file));
             widgetItem.setToolTip(file);
-            this.allJava.addItem(widgetItem);
+            this.allJava.insertItem(config.userDefinedJava.length, widgetItem);
         });
         dialog.show();
     }
     async onSelected() {
         this.allJava.clear();
-        findAllJava().then(javas => javas.forEach(
-            (pair) => {
-                const widgetItem = new QListWidgetItem(pair.a);
-                widgetItem.setToolTip(pair.b);
-                this.allJava.addItem(widgetItem);
-            }
-        ));
-        config.userDefinedJava.forEach(
-            async (item) => {
-                const widgetItem = new QListWidgetItem(await getJavaVersion(item));
-                widgetItem.setToolTip(item);
-                this.allJava.addItem(widgetItem);
-            }
-        );
+        for (const item of config.userDefinedJava) {
+            const widgetItem = new QListWidgetItem(await getJavaVersion(item));
+            widgetItem.setToolTip(item);
+            this.allJava.addItem(widgetItem);
+        }
+        for (const { a: version, b: execPath } of await findAllJava()) {
+            const widgetItem = new QListWidgetItem(version);
+            widgetItem.setToolTip(execPath);
+            this.allJava.addItem(widgetItem);
+        }
+        if (this.hasDefault) {
+            this.allJava.addItem(new QListWidgetItem("默认"));
+        }
     }
 
 }

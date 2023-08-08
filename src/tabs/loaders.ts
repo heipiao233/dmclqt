@@ -1,12 +1,13 @@
 import { ButtonRole, Direction, QBoxLayout, QGroupBox, QListWidget, QListWidgetItem, QMessageBox, QPushButton } from "@nodegui/nodegui";
 import { Launcher } from 'dmclc';
+import { MinecraftVersion } from "dmclc/lib/version";
 import launcherInterface from "../launcherInterface";
 import { Tab } from "../tabs";
 
 export default class LoadersTab extends Tab {
     versionList: QListWidget;
     loaderList: QListWidget;
-    constructor(private launcher: Launcher, private sharedData: Map<string, any>) {
+    constructor(private launcher: Launcher, private version: MinecraftVersion) {
         super();
         const loaderBox = new QGroupBox();
         loaderBox.setTitle("选择加载器");
@@ -44,7 +45,7 @@ export default class LoadersTab extends Tab {
             return;
         }
         try {
-            await this.launcher.installedVersions.get(this.sharedData.get("selectedGame"))!.installLoader(loaderType, loaderVersion);
+            await this.version.installLoader(loaderType, loaderVersion);
             launcherInterface.info(`${loaderType} 版本 ${loaderVersion} 安装成功！`);
         } catch (e) {
             if (e instanceof Error) {
@@ -55,13 +56,12 @@ export default class LoadersTab extends Tab {
         }
     }
     async loadVersionList(loaderID: string): Promise<void> {
-        const selectedGame = this.launcher.installedVersions.get(this.sharedData.get("selectedGame"));
-        if (!selectedGame) {
+        if (!this.version) {
             launcherInterface.error("未选择游戏！");
             return;
         }
         try {
-            let versions = await selectedGame.getSuitableLoaderVersions(loaderID)
+            let versions = await this.version.getSuitableLoaderVersions(loaderID)
             this.versionList.clear();
             for (const i of versions) {
                 const listItem = new QListWidgetItem();
