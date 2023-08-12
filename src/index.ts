@@ -37,7 +37,9 @@ if (config.usingUser != -1) {
         sharedData.set("account", account);
     }
 }
-addTab(new MainPageTab(launcher, sharedData, config), "主页", false);
+let main = new MainPageTab(launcher, sharedData, config);
+addTab(main, "主页", false);
+await main.onSelected();
 // TODO: Plugin system
 initTabs();
 layout.addWidget(tabList);

@@ -1,7 +1,7 @@
 import { QFileDialog, QGridLayout, QListWidget, QListWidgetItem, QPushButton, SelectionMode } from "@nodegui/nodegui";
 import { Launcher } from 'dmclc';
 import { MinecraftVersion } from "dmclc/lib/version";
-import { statSync } from "fs";
+import { ensureDir } from "fs-extra";
 import { copyFile, readdir, rm } from "fs/promises";
 import path from "path";
 import launcherInterface from "../launcherInterface";
@@ -43,8 +43,9 @@ export default class ModListTab extends Tab {
 
     async reload() {
         this.listWidget.clear();
-        if (statSync(`${this.version.versionLaunchWorkDir}/mods`).isDirectory())
-            this.fillList((await readdir(`${this.version.versionLaunchWorkDir}/mods`)).filter(v => v.endsWith(".jar")));
+        let moddir = `${this.version.versionLaunchWorkDir}/mods`;
+        ensureDir(moddir);
+        this.fillList((await readdir(moddir)).filter(v => v.endsWith(".jar")));
     }
 
     async add() {

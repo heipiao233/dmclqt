@@ -1,6 +1,6 @@
 {
     "name": "dmclqt",
-    "version": "1.2.2",
+    "version": "1.2.3",
     "author": "heipiao",
     "license": "MIT",
     "private": false,
@@ -13,7 +13,7 @@
     },
     "dependencies": {
         "@nodegui/nodegui": "^0.61.0",
-        "dmclc": "^4.1.4",
+        "dmclc": "^4.1.7",
         "fs-extra": "^11.1.1",
         "json5": "^2.2.2"
     },

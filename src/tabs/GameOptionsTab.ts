@@ -22,9 +22,6 @@ export class GameOptionsTab extends Tab {
         const layout = new QBoxLayout(Direction.TopToBottom);
 
         this.usingJava.setText("默认");
-        if (version.extras.usingJava) {
-            getJavaVersion(version.extras.usingJava).then((name) => this.usingJava.setText(name));
-        }
         this.usingJava.addEventListener("clicked", () => addTabAndSwitch(new SelectJavaTab(version.extras, true), "选择 Java"));
         layout.addWidget(this.usingJava);
 
@@ -80,12 +77,14 @@ export class GameOptionsTab extends Tab {
         this.version.saveExtras();
     }
 
-    async onSelected(): Promise<void> {
+    async onSelected() {
         if (this.version.extras.usingJava) {
             this.usingJava.setText(await getJavaVersion(this.version.extras.usingJava));
         } else {
             this.usingJava.setText("默认");
         }
+
+        this.modList.setDisabled(this.version.extras.loaders.length == 0);
     }
 }
 
