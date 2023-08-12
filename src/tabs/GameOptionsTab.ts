@@ -37,7 +37,7 @@ export class GameOptionsTab extends Tab {
         version.extras.moreGameArguments ? this.moreGameArguments.setText(version.extras.moreGameArguments.join(" ")) : 0;
         layout.addWidget(this.moreGameArguments);
 
-        this.moreJavaArguments.setPlaceholderText("自定义游戏参数");
+        this.moreJavaArguments.setPlaceholderText("自定义 JVM 参数");
         version.extras.moreJavaArguments ? this.moreJavaArguments.setText(version.extras.moreJavaArguments.join(" ")) : 0;
         layout.addWidget(this.moreJavaArguments);
 

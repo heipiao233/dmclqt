@@ -123,6 +123,7 @@ export default class ContentTab extends Tab {
         this.searchLayout = new QBoxLayout(Direction.LeftToRight);
         this.searchEdit = new QLineEdit();
         const searchButton = new QPushButton();
+        searchButton.setText("搜索");
         searchButton.addEventListener("clicked", () => this.search());
         this.searchLayout.addWidget(this.searchEdit);
         this.searchLayout.addWidget(searchButton);
