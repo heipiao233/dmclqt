@@ -60,13 +60,13 @@ export default class MainPageTab extends Tab {
         this.accountButton.setText(this.sharedData.get("account")?.toString() ?? "选择账户...");
         this.versionButton.setText(this.sharedData.get("selectedGame")?.toString() ?? "选择版本...");
         this.dirButton.setText(this.launcher.rootPath);
-        this.launchButton.setDisabled(!this.launcher.installedVersions.has(this.sharedData.get("selectedGame")));
         let game = this.launcher.installedVersions.get(this.sharedData.get("selectedGame"));
-        this.optionsButton.setDisabled(!(
+        this.launchButton.setDisabled(!(
             game
             && (this.launcher.usingJava || game.extras.usingJava)
             && this.sharedData.get("account")
         ));
+        this.optionsButton.setDisabled(!game);
     }
 
     async launchGame() {
