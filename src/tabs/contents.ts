@@ -1,6 +1,7 @@
 import { CheckState, Direction, QBoxLayout, QCheckBox, QComboBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPixmap, QPushButton, QSizePolicyPolicy, QTextBrowser, QVariant } from '@nodegui/nodegui';
 import { randomUUID } from 'crypto';
 import { Content, ContentService, ContentType, ContentVersion, Launcher } from 'dmclc';
+import { addExitDelete } from 'dmclc/lib/launcher';
 import { download } from 'dmclc/lib/utils/downloads';
 import { MinecraftVersion } from 'dmclc/lib/version';
 import { tmpdir } from 'os';
@@ -59,11 +60,12 @@ class ContentInfoTab extends Tab {
         this.setLayout(layout);
 
         const iconLabel = new QLabel();
-        iconLabel.setPixmap(new QPixmap(iconPath));
+        iconLabel.setPixmap(new QPixmap(iconPath).scaled(256, 256));
         layout.addWidget(iconLabel, 0, 0);
 
         const nameLabel = new QLabel();
         nameLabel.setText(name);
+        nameLabel.setToolTip(desc);
         layout.addWidget(nameLabel, 1, 0);
 
         const versionListButton = new QPushButton();
@@ -73,13 +75,14 @@ class ContentInfoTab extends Tab {
         layout.addWidget(versionListButton, 2, 0);
 
         const bodyBrowser = new QTextBrowser();
-        bodyBrowser.setHtml(desc);
-        bodyBrowser.insertHtml(body);
+        bodyBrowser.setHtml(body);
+        bodyBrowser.setOpenExternalLinks(true);
         layout.addWidget(bodyBrowser, 0, 1, 3);
     }
 
     static async create(launcher: Launcher, version: MinecraftVersion, content: Content, versionChecked: boolean, isModpack: boolean): Promise<ContentInfoTab | undefined> {
         const iconPath = `${tmpdir()}/icon-${randomUUID()}.png`;
+        addExitDelete(iconPath);
         const forVersion = versionChecked ? version : undefined;
         try {
             await download(await content.getIconURL(), iconPath, launcher);

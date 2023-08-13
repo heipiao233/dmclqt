@@ -18,6 +18,7 @@ const launcher = await (async () => {
         throw new Error("退出失败！");
     }
 })();
+launcher.setDownloadImages();
 
 launcher.mirror = config.mirror;
 const win = new QMainWindow();
