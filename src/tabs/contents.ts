@@ -151,6 +151,7 @@ export default class ContentTab extends Tab {
         this.resultList.addEventListener("itemActivated", async () => await this.showVersions(this.items[this.resultList.currentRow()]));
 
         const loadMoreButton = new QPushButton();
+        loadMoreButton.setText("加载更多");
         loadMoreButton.addEventListener("clicked", async () => await this.loadMore());
 
         this.layout_.addLayout(this.searchLayout);

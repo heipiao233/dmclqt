@@ -10,8 +10,12 @@ import ModIssuesTab from "./ModIssuesTab";
 
 export default class ModListTab extends Tab {
     listWidget: QListWidget;
+    moddir: string;
     constructor(private version: MinecraftVersion, private launcher: Launcher) {
         super();
+        this.moddir = `${this.version.versionLaunchWorkDir}/mods`;
+        ensureDir(this.moddir);
+
         const layout = new QGridLayout();
         this.setLayout(layout);
 
@@ -43,9 +47,7 @@ export default class ModListTab extends Tab {
 
     async reload() {
         this.listWidget.clear();
-        let moddir = `${this.version.versionLaunchWorkDir}/mods`;
-        ensureDir(moddir);
-        this.fillList((await readdir(moddir)).filter(v => v.endsWith(".jar")));
+        this.fillList((await readdir(this.moddir)).filter(v => v.endsWith(".jar")));
     }
 
     async add() {
@@ -53,14 +55,14 @@ export default class ModListTab extends Tab {
         dialog.setNameFilter("Mod (*.jar)");
         dialog.exec();
         for (const i of dialog.selectedFiles()) {
-            await copyFile(i, `${this.version.versionLaunchWorkDir}/mods/${path.basename(i)}`);
+            await copyFile(i, `${this.moddir}/${path.basename(i)}`);
         }
         await this.reload();
     }
 
     async remove() {
         for (const i of this.listWidget.selectedItems()) {
-            await rm(i.toolTip());
+            await rm(`${this.moddir}/${i.text()}`);
         }
         await this.reload();
     }

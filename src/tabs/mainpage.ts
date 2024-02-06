@@ -51,7 +51,7 @@ export default class MainPageTab extends Tab {
 
         this.settingsButton.setText("设置...");
         this.settingsButton.addEventListener("clicked", () => {
-            addTabAndSwitch(new SettingsTab(launcher, sharedData, config), "安装游戏");
+            addTabAndSwitch(new SettingsTab(launcher, sharedData, config), "设置");
         });
         layout.addWidget(this.settingsButton, 2, 3);
     }
