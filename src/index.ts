@@ -1,5 +1,5 @@
 /// <reference path="../assets.d.ts" />
-import { QApplication, QGridLayout, QIcon, QMainWindow, QWidget, WidgetEventTypes } from '@nodegui/nodegui';
+import { QApplication, QGridLayout, QIcon, QMainWindow, QStyle, QStyleFactory, QWidget, WidgetEventTypes } from '@nodegui/nodegui';
 import { Launcher } from 'dmclc';
 import logo from '../assets/icon_128x128.png';
 import { config, saveConfig } from './config';
@@ -12,7 +12,8 @@ const launcher = await (async () => {
         return await Launcher.create(config.gameDirs[config.usingDir], "DMCLQT", config.usingJava, "71dd081b-dc92-4d36-81ac-3a2bde5527ba", launcherInterface, "zh_cn", undefined, (str: string) => {
             QApplication.clipboard()?.setText(str);
         });
-    } catch {
+    } catch(e) {
+        console.error(e);
         await launcherInterface.error("启动失败！");
         QApplication.instance().exit(1);
         throw new Error("退出失败！");

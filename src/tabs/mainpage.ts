@@ -77,7 +77,8 @@ export default class MainPageTab extends Tab {
         try {
             const cp = await selectedGame.run(this.sharedData.get("account"));
             addTabAndSwitch(new LogTab(cp, account.getTokens()), `日志 - ${selectedGame.name}`);
-        } catch {
+        } catch(e) {
+            console.error(e);
             launcherInterface.error("启动失败！");
         }
     }

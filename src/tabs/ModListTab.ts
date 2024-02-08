@@ -71,7 +71,8 @@ export default class ModListTab extends Tab {
         try {
             let result = await this.version.modManager.checkMods();
             addTabAndSwitch(new ModIssuesTab(result, this.launcher), `模组加载问题 - ${this.version.name}`);
-        } catch {
+        } catch(e) {
+            console.error(e);
             launcherInterface.error("检查模组依赖失败！");
         }
     }

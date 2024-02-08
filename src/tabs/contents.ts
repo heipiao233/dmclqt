@@ -1,12 +1,11 @@
 import { CheckState, Direction, QBoxLayout, QCheckBox, QComboBox, QGridLayout, QIcon, QLabel, QLineEdit, QListWidget, QListWidgetItem, QPixmap, QPushButton, QSizePolicyPolicy, QTextBrowser, QVariant } from '@nodegui/nodegui';
-import { randomUUID } from 'crypto';
 import { Content, ContentService, ContentType, ContentVersion, Launcher } from 'dmclc';
-import { addExitDelete } from 'dmclc/lib/launcher';
-import { download } from 'dmclc/lib/utils/downloads';
+import { download, downloadIntoStream } from 'dmclc/lib/utils/downloads';
 import { MinecraftVersion } from 'dmclc/lib/version';
 import { tmpdir } from 'os';
 import launcherInterface from '../launcherInterface';
 import { Tab, addTabAndSwitch } from '../tabs';
+let temp = (await import("temp")).track();
 
 class VersionTab extends Tab {
     listWidget: QListWidget;
@@ -81,12 +80,12 @@ class ContentInfoTab extends Tab {
     }
 
     static async create(launcher: Launcher, version: MinecraftVersion, content: Content, versionChecked: boolean, isModpack: boolean): Promise<ContentInfoTab | undefined> {
-        const iconPath = `${tmpdir()}/icon-${randomUUID()}.png`;
-        addExitDelete(iconPath);
+        const iconFile = temp.createWriteStream();
         const forVersion = versionChecked ? version : undefined;
         try {
-            await download(await content.getIconURL(), iconPath, launcher);
-            return new ContentInfoTab(iconPath, await content.getTitle(),
+            await downloadIntoStream(await content.getIconURL(), iconFile, launcher);
+            iconFile.close();
+            return new ContentInfoTab(iconFile.path as string, await content.getTitle(),
                 await content.getDescription(), await content.getBody(), await content.listVersions(forVersion), launcher, version, isModpack);
         } catch {
             launcherInterface.error(`获取 ${await content.getTitle()} 信息失败！`);
