@@ -1,5 +1,5 @@
 /// <reference path="../assets.d.ts" />
-import { QApplication, QGridLayout, QIcon, QMainWindow, QStyle, QStyleFactory, QWidget, WidgetEventTypes } from '@nodegui/nodegui';
+import { QApplication, QGridLayout, QIcon, QMainWindow, QWidget, WidgetEventTypes } from '@nodegui/nodegui';
 import { Launcher } from 'dmclc';
 import logo from '../assets/icon_128x128.png';
 import { config, saveConfig } from './config';
